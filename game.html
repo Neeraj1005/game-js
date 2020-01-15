@@ -5,14 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Road Rush</title>
+    <link href="https://fonts.googleapis.com/css?family=Baloo+Bhai&display=swap" rel="stylesheet">
     <style>
         *{
             margin: 0;
             padding: 0;
+            font-family: 'Baloo Bhai', cursive;
         }
         .hide{
             display: none;
         }
+
+        .carGame{
+            width: 100%;
+            height: 100vh;
+            background-image: url('bg.jpg');
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+
+        }
+
         /* .enemy{
             width: 50px;
             height: 70px;
@@ -26,6 +38,11 @@
             background: red;
             position: absolute;
             bottom: 120px;
+            /* car image */
+            background-image: url('car.png');
+            /* filter: invert(100%); */
+            background-repeat: no-repeat;
+            background-size: contain, cover;
         }
         .gameArea{
             width: 400px;
@@ -34,6 +51,9 @@
             margin:auto;
             position: relative;
             overflow: hidden;
+            /* side line for road  */
+            border-right: 7px dashed #c8d6e5;
+            border-left: 7px dashed #c8d6e5;
         }
         .lines{
             width: 10px;
@@ -42,6 +62,41 @@
             position: absolute;
             margin-left: 195px;
 
+        }
+        .score{
+            position: absolute;
+            top: 6px;
+            left: 59px;
+            background: #10ac84;
+            width: 224px;
+            /* height: 70px; */
+            line-height: 70px;
+            text-align: center;
+            color: white;
+            font-size: 1.5em;
+            box-shadow: 0 5px 5px #777;
+
+        }
+        .startScreen{
+            position: absolute;
+            background-color: #ee5253;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            z-index: 1;
+            text-align: center;
+            border: 1px solid #ff6b6b;
+            padding: 15px;
+            margin: auto%;
+            width: 50%;
+            cursor: pointer;
+            letter-spacing: 5;
+            font-size: 20px;
+            word-spacing: 3;
+            line-height: 30px;
+            text-transform: uppercase;
+            box-shadow: 0 5px 5px #777;
         }
     </style>
 </head>
@@ -54,7 +109,7 @@
             If you hit another car game over.
             </p>
         </div>
-        <div class="gameArea hide"> 
+        <div class="gameArea "> 
             
         </div>
     </div>
@@ -67,7 +122,7 @@
     
     startScreen.addEventListener('click', start);
 
-    let player = {speed : 5};
+    let player = {speed : 5, score: 0};
 
     let keys = {ArrowUp : false, ArrowDown : false, ArrowLeft : false, ArrowRight : false }
 
@@ -111,6 +166,12 @@
         (aRect.left > bRect.right) || 
         (aRect.right < bRect.left))
     }
+// end game or game over function
+    function endGame(){
+        player.start = false;
+        startScreen.classList.remove('hide');
+        startScreen.innerHTML = "Game over <br> Highest Score " + player.score + "<br> Click Here to Restart the Game"
+    }
 
     function moveEnemy(car){
         let enemy = document.querySelectorAll('.enemy');
@@ -118,7 +179,8 @@
         enemy.forEach(function(item){
 
             if(isCollide(car, item)){
-                console.log("Boom Hit")
+                console.log("Boom Hit");
+                endGame();
             }
 
             if(item.y >= 750)
@@ -142,8 +204,8 @@
 
             moveLines();
             moveEnemy(car);
-
-                if(keys.ArrowUp && player.y > (road.top + 5)){
+// top space or bottom space etc... increase or decrease the number value and check
+                if(keys.ArrowUp && player.y > (road.top + 70)){
                     player.y -= player.speed
                 }
                 if(keys.ArrowDown && player.y < (road.bottom - 70) ){
@@ -158,14 +220,22 @@
                 car.style.top = player.y + "px";
                 car.style.left = player.x + "px";
             window.requestAnimationFrame(gamePlay);
+            console.log(player.score++);
+
+// for counting score properly
+            player.score++;
+            let ps = player.score -2;
+            score.innerText = "Score: " + ps;
         }
     }
 
     function start(){
-        gameArea.classList.remove('hide');
+        // gameArea.classList.remove('hide');
         startScreen.classList.add('hide');
+        gameArea.innerHTML = "";
 
         player.start = true;
+        player.score = 0;
         window.requestAnimationFrame(gamePlay);
         
         // looping for road line create
@@ -195,9 +265,23 @@
         enemyCar.setAttribute('class','enemy');
         enemyCar.y = ( (x+1) * 350) * -1;
         enemyCar.style.top = enemyCar.y + "px";
-        enemyCar.style.backgroundColor = 'blue';
+        // enemyCar.style.backgroundColor = 'blue';
+        // random color car generate
+        enemyCar.style.backgroundColor = randomColor();
+
         enemyCar.style.left = Math.floor(Math.random() * 350) + "px";
         gameArea.appendChild(enemyCar);
+        }
+
+// random color function for enemycar 
+        function randomColor(){
+            function c(){
+                // convert into hex format usin toString method
+                let hex = Math.floor(Math.random() * 256).toString(16);
+                // concatenate with number
+                return ("0" + String(hex)).substr(-2);
+            }
+            return '#'+c()+c()+c();
         }
     }
 
